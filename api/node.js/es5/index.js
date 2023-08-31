@@ -97,7 +97,7 @@ var OCR = /** @class */ (function (_super) {
         quqe.next();
         quqe.next(function (res) {
             _this.stdout.once('data', function (data) {
-                var _a = String(data).match(/^pid=(\d+)(, a=(\d+\.\d+\.\d+\.\d+:\d+))?/), pid = _a[1], socket = _a[2], addr = _a[3], port = _a[4];
+                var _a = String(data).match(/^pid=(\d+)(, addr=(\d+\.\d+\.\d+\.\d+:\d+))?/), pid = _a[1], socket = _a[2], addr = _a[3], port = _a[4];
                 _this.pid = Number(pid);
                 if (socket) {
                     _this.addr = addr;
