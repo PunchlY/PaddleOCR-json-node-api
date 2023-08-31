@@ -5,7 +5,7 @@ interface Queue<T> extends AsyncGenerator<T, null, (resolve: (value?: T) => void
 async function* Queue<T>(value?: T): Queue<T> {
     while (true) value = await new Promise(yield value);
 }
-const quqeMap = new WeakMap<OCR, Queue<OCR.coutReturnType>>();
+const quqeMap = new WeakMap<OCR, Queue<OCR.DetectionResult>>();
 
 class OCR extends Worker {
     pid: number;
@@ -17,7 +17,7 @@ class OCR extends Worker {
             workerData: { path, args, options, debug },
             stdout: true,
         });
-        const quqe = Queue<OCR.coutReturnType>();
+        const quqe = Queue<OCR.DetectionResult>();
         quqeMap.set(this, quqe);
         quqe.next();
         quqe.next((res) => {
@@ -65,7 +65,7 @@ namespace OCR {
 
     export type Arg = Arg_Base64 | Arg_Path;
 
-    export interface coutReturnType {
+    export interface DetectionResult {
         code: number;
         message: string;
         data: {

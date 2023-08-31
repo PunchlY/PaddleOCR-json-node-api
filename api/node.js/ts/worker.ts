@@ -2,7 +2,7 @@ import { isMainThread, parentPort, workerData } from 'worker_threads';
 import { resolve as path_resolve } from 'path';
 import { Socket } from 'net';
 import { spawn } from 'child_process';
-import type { Arg, coutReturnType, Options } from './index';
+import type { Arg, DetectionResult, Options } from './index';
 
 interface workerData {
     path: string;
@@ -42,14 +42,16 @@ function cargs(obj: Arg) {
     }
     if (obj.output !== undefined)
         obj.output = path_resolve(currentPath, obj.output);
-    return obj;
+
+    return `${JSON.stringify(obj)}\n`;
 }
-function cout(data: { code: number, data: any; }) {
+function cout(message: any) {
+    const { code, data } = JSON.parse(String(message));
     return {
-        code: data.code,
-        message: data.code - 100 ? data.data : '',
-        data: data.code - 100 ? null : data.data,
-    } as coutReturnType;
+        code,
+        message: code - 100 ? data : '',
+        data: code - 100 ? null : data,
+    } as DetectionResult;
 }
 
 const end = 'at' in String ? (str: string) => str.at(-1) : (str: string) => str[str.length - 1];
@@ -80,11 +82,11 @@ if (!isMainThread) {
         proc.stdout.off('data', stdout);
         return res();
     })).then(() => new Promise((res: (value?: [string, number]) => void) => {
+        proc.stderr.once('data', () => null);
         if (mode === 1) {
             process.stdout.write(`pid=${proc.pid}, pipe=true\n`);
             return res();
         }
-        proc.stderr.once('data', () => null);
         proc.stdout.once('data', (chunk) => {
             const data: string = chunk.toString();
             const socket = data.match(__default.socketMatch)[1].split(':');
@@ -105,22 +107,22 @@ if (!isMainThread) {
             const [addr, port] = socket;
             parentPort.on('message', (data) => {
                 client.connect(port, addr, () => {
-                    client.end(`${JSON.stringify(cargs(data))}\n`);
+                    client.end(cargs(data));
                 });
             });
             client.on('data', (chunk) => {
-                parentPort.postMessage(cout(JSON.parse(String(chunk))));
+                parentPort.postMessage(cout(chunk));
             });
         } else {
             parentPort.on('message', (data) => {
-                proc.stdin.write(`${JSON.stringify(cargs(data))}\n`);
+                proc.stdin.write(cargs(data));
             });
             const cache = [];
             proc.stdout.on('data', (chunk) => {
                 const str = String(chunk);
                 cache.push(str);
                 if (end(str) !== '\n') return;
-                parentPort.postMessage(cout(JSON.parse(cache.join(''))));
+                parentPort.postMessage(cout(chunk));
                 cache.length = 0;
             });
         }
