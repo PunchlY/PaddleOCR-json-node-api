@@ -27,12 +27,14 @@ DECLARE_bool(use_tensorrt);
 DECLARE_int32(gpu_id);
 DECLARE_int32(gpu_mem);
 DECLARE_int32(cpu_threads);
+DECLARE_int32(cpu_mem);
 DECLARE_bool(enable_mkldnn);
 DECLARE_string(precision);
 DECLARE_bool(benchmark);
 DECLARE_string(output);
 DECLARE_string(type);
 DECLARE_string(config_path);
+DECLARE_string(models_path);
 DECLARE_bool(ensure_ascii);
 // detection related
 DECLARE_string(det_model_dir);

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // 版本信息
-#define PROJECT_VER "v1.3.0"
+#define PROJECT_VER "v1.4.1 dev.1"
 #define PROJECT_NAME "PaddleOCR-json " PROJECT_VER
 
 #include "opencv2/core.hpp"
@@ -31,7 +31,7 @@ using namespace PaddleOCR;
 
 void structure(std::vector<cv::String> &cv_all_img_names)
 {
-    PaddleOCR::PaddleStructure engine = PaddleOCR::PaddleStructure();
+    PaddleOCR::PaddleStructure engine;
 
     if (FLAGS_benchmark)
     {
@@ -98,7 +98,9 @@ void structure(std::vector<cv::String> &cv_all_img_names)
 int main(int argc, char **argv)
 {
     std::cout << PROJECT_NAME << std::endl; // 版本提示
-    // 读取命令行
+    // 设置gflags并读取命令行
+    google::SetUsageMessage("PaddleOCR-json [FLAG1=ARG1] [FLAG2=ARG2]");
+    google::SetVersionString(PROJECT_VER);
     google::ParseCommandLineFlags(&argc, &argv, true);
     // 读取配置文件
     std::string configMsg = read_config();

@@ -1,32 +1,54 @@
+#### 离线OCR组件 系列项目：
+- **PaddleOCR-json**
+- [RapidOCR-json](https://github.com/hiroi-sora/RapidOCR-json)
 
+|                  | PaddleOCR-json                                  | RapidOCR-json        |
+| ---------------- | ----------------------------------------------- | -------------------- |
+| CPU要求          | CPU必须具有AVX指令集。不支持以下CPU：           | 无特殊要求 👍         |
+|                  | 凌动Atom，安腾Itanium，赛扬Celeron，奔腾Pentium |                      |
+| 推理加速库       | mkldnn 👍                                        | 无                   |
+| 识别速度         | 快（启用mkldnn加速）👍                           | 中等                 |
+| 初始化耗时       | 约0.6s                                          | 0.1s内，快 👍         |
+| 组件体积（压缩） | 100MB                                           | 70MB 👍               |
+| 组件体积（部署） | 369MB                                           | 80MB 👍               |
+| CPU占用          | 较高                                            | 较低，对低配机器友好 |
+| 建议预留内存     | 2000MB                                          | 800MB 👍              |
 
-# PaddleOCR-json v1.3.0
+---
 
-这是一个基于 [PaddleOCR v2.6 C++](https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.6) 的开源离线OCR组件，可快速让你的程序拥有OCR能力。它通常作为一个子进程被上层程序调用，也可以作为一个单独的进程通过TCP调用。本项目提供了Python等语言的API，你可以无视技术细节，通过两行代码使用它。
+# PaddleOCR-json
+
+> 支持： **Win7 x64**、**Linux x64**、[Docker](cpp/README-docker.md)
+
+这是一个基于 [PaddleOCR v2.6](https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.6) 及 [v2.8](https://github.com/PaddlePaddle/PaddleOCR/tree/release/2.8) cpp_infer 的离线图片OCR文字识别程序，可快速让你的程序拥有OCR能力。它可以作为一个子进程被上层程序调用，也可以作为一个单独的进程通过TCP调用。本项目提供了Python等语言的API，你可以无视技术细节，通过两行代码使用它。
+
+本项目旨在提供一个封装好的OCR引擎组件，使得没有C++编程基础的开发者也可以用别的语言来简单地调用OCR，享受到更快的运行效率、更便捷的打包&部署手段。
 
 - **方便** ：部署方便，解压即用，无需安装和配置环境，无需联网。发布方便，可嵌入程序包也可作为外挂组件。
-- **高速** ：基于 PPOCR C++ 版引擎，识别效率显著高于Python版本PPOCR及其他一些由Python编写的OCR引擎。
-- **精准** ：附带PPOCR-v3识别库，对非常规字形（手写、艺术字、小字、杂乱背景等）也具有不错的识别率。
-- **灵活** ：可以以多种方式指定OCR任务，支持识别本地图片路径、剪贴板图片、Base64编码的图片。
+- **高速** ：基于 PPOCR C++ 版引擎，识别效率高于Python版本PPOCR及其他一些由Python处理任务流的OCR引擎。
+- **精准** ：附带 PPOCR-v3 / v4 识别库，对非常规字形（手写、艺术字、小字、杂乱背景等）也具有不错的识别率。
+- **灵活** ：可以以多种方式指定OCR任务，支持识别本地图片路径、Base64编码的图片、TCP局域网调用。
 
-**关联项目：[Umi-OCR 批量图片转文字工具](https://github.com/hiroi-sora/Umi-OCR)**
+**应用：[Umi-OCR 批量图片转文字工具](https://github.com/hiroi-sora/Umi-OCR)**
 
 ## 兼容性
 
-- 系统支持 Win10/11 x64 。Linux的支持正在筹备。
-- 不建议使用 Win7 ，识别引擎很可能无法运行。
+- 系统： x86-64 的 Windows 7+ 、Linux。
+- 若 Win7 报错`计算机中丢失 VCOMP140.DLL` ，请安装 [VC运行库](https://aka.ms/vs/17/release/vc_redist.x64.exe) 。
 - CPU必须具有AVX指令集。常见的家用CPU一般都满足该条件。
 
     | AVX   | 支持的产品系列                                         | 不支持                                          |
     | ----- | ------------------------------------------------------ | ----------------------------------------------- |
     | Intel | 酷睿Core，至强Xeon                                     | 凌动Atom，安腾Itanium，赛扬Celeron，奔腾Pentium |
     | AMD   | 推土机架构及之后的产品，如锐龙Ryzen、速龙Athlon、FX 等 | K10架构及之前的产品                             |
-- 如果需求在 Win7 或 无AVX的CPU上使用OCR，可看看隔壁 [RapidOCR-json](https://github.com/hiroi-sora/RapidOCR-json) 。
+- 如果需求在无AVX的CPU上使用OCR，可看看隔壁 [RapidOCR-json](https://github.com/hiroi-sora/RapidOCR-json) 。
 
 
 ## 准备工作
 
-下载 [PaddleOCR-json v1.3.0](https://github.com/hiroi-sora/PaddleOCR-json/releases/tag/v1.3.0) 并解压，即可。
+下载可执行文件包：
+
+- https://github.com/hiroi-sora/PaddleOCR-json/releases/latest
 
 ### 简单试用
 
@@ -97,10 +119,22 @@ ocr.flush({ image_path: 'path/to/test/img' })
 
 [资源目录](api/PowerShell)
 
+### 4. Java API
 
-### 其他API
+[资源目录](https://github.com/jerrylususu/PaddleOCR-json-java-api)
 
-`PowerShell`、`Java`、`Rust` 等API尚未兼容 v1.3 测试版本。如有需要，请用 [v1.2.1](https://github.com/hiroi-sora/PaddleOCR-json/tree/backups/1.2.1/new_builds) 版本。
+### 5. .NET API
+
+[资源目录](https://github.com/aki-0929/PaddleOCRJson.NET)
+
+
+### 6. Rust API
+
+[资源目录](https://github.com/OverflowCat/paddleocr)
+
+### 7. Go API
+
+[资源目录](https://github.com/doraemonkeys/paddleocr)
 
 ### 更多语言API
 
@@ -109,18 +143,24 @@ ocr.flush({ image_path: 'path/to/test/img' })
 
 ## 常用配置参数说明
 
-| 键名称        | 默认值 | 值说明                                                     |
-| ------------- | ------ | ---------------------------------------------------------- |
-| config_path   | ""     | 可以指定不同语言的配置文件路径，识别多国语言。详情见下节。 |
-| cls           | false  | 启用cls方向分类，识别方向不是正朝上的图片。                |
-| use_angle_cls | false  | 启用方向分类，必须与cls值相同。                            |
-| enable_mkldnn | true   | 启用CPU推理加速，关掉可以减少内存占用，但会降低速度。      |
+| 键名称         | 默认值 | 值说明                                                                                   |
+| -------------- | ------ | ---------------------------------------------------------------------------------------- |
+| ensure_ascii   | true   | 启用ascii编码转换，以ascii编码（纯英文数字）输出unicode字符，如 `你好`→`\u4f60\u597d` 。      |
+|                |        | 一般情况下，json解码器会自动将ascii码翻译回原字符。此选项建议开启，以提高编码兼容性。          |
+| config_path    | ""     | 可以指定不同语言的配置文件路径，识别多国语言。[详情见下节](#语言库与切换识别语言)。      |
+| models_path    | ""     | 可以指定语言库 `models` 文件夹的路径。[详情见下节](#语言库与切换识别语言)。              |
+| det            | true   | 启用det目标识别。如果你的图片中只含一行文本，且没有空白区域，那么可以关闭det以加快速度。 |
+| cls            | false  | 启用cls方向分类，识别方向不是正朝上的图片。                                              |
+| use_angle_cls  | false  | 启用方向分类，必须与cls同时设置。                                                        |
+| enable_mkldnn  | true   | 启用CPU推理加速，关掉可以减少内存占用，但会降低速度。                                    |
+| limit_side_len | 960    | 对图像边长进行限制，降低分辨率，加快速度。如果对大图/长图的识别率低，可增大此选项的值。    |
+|                |        | 建议为 32 & 48 的公倍数，如 960, 2880, 4320                                              |
 
-更多参数详见 [args.cpp](project_files/cpp_infer/src/args.cpp) 。（不支持其中GPU相关、表格识别相关的参数。-）
+更多参数详见 [args.cpp](/cpp/src/args.cpp) 。（不支持其中GPU相关、表格识别相关的参数。-）
 
-### 切换识别语言：
+### 语言库与切换识别语言：
 
-`v1.3`版本的Release压缩包中，默认附带了 `简中,繁中,英,日,韩,俄,德,法` 的语言库与配置文件，在 `models` 目录下。
+Release压缩包中，默认附带了 `简中,繁中,英,日,韩` 的语言库与配置文件，在 `models` 目录下。
 
 `models` 目录中，每一个 `config_xxx.txt` 是一组语言配置文件（如英文是`congfig_en.txt`）。只需将这个文件的路径传入 `config_path` 参数，即可切换为对应的语言。以 Python API 为例：
 
@@ -131,6 +171,36 @@ ocr = GetOcrApi(enginePath, argument)
 ```
 
 如果 config_path 留空，则 PaddleOCR-json 默认加载并使用简体中文识别库。
+
+但是，当使用默认路径或单独设置 `config_path` 时，PaddleOCR-json可执行文件必须与语言库在同一目录下。比如：
+
+```
+.
+├─ PaddleOCR-json.exe
+└─ models
+    ├─ ...
+```
+
+如果语言库在另外一个文件夹下，PaddleOCR-json就无法找到语言库。
+
+在这种情况下，你可以使用 `models_path` 参数来设置语言库的位置。PaddleOCR-json会使用用户设置的语言库位置为基准来加载其他文件。
+
+这样一来，即使 PaddleOCR-json 与语言库不在同一目录下也能正常使用。以 Python API 为例：
+
+```python
+enginePath = "D:/Test/PaddleOCR_json.exe"  # 引擎路径
+modelsPath = "D:/Hello/models"             # 语言库路径路径
+# 这里的参数顺序不影响结果
+argument = {
+  # 指定语言库位置
+  "models_path": "D:/Hello/models",
+  # 指定使用英文库
+  "config_path": "D:/Hello/models/config_en.txt",
+}
+ocr = GetOcrApi(enginePath, argument)
+```
+
+本项目支持 PP-OCR 系列官方 V2~V4 模型，或自己训练的符合PP规范的模型。更多 PP-OCR 系列官方模型下载： https://github.com/PaddlePaddle/PaddleOCR/blob/main/doc/doc_ch/models_list.md
 
 #### 删除语言库：
 
@@ -152,10 +222,13 @@ ocr = GetOcrApi(enginePath, argument)
 
 ##### `100` 识别到文字
 
-- data内容为数组。数组每一项为字典，含三个元素：
+- data内容为数组。数组每一项为字典，含三个固定元素：
   - `text` ：文本内容，字符串。
   - `box` ：文本包围盒，长度为4的数组，分别为左上角、右上角、右下角、左下角的`[x,y]`。整数。
-  - `score` ：识别置信度，浮点数。
+  - `score` ：识别置信度，0~1的浮点数。越接近**1**表示文字内容越可信。
+- （v1.4.0新增）如果启用了 `cls` 和 `use_angle_cls` ，那么会多出两个元素：
+  - `cls_label` ：方向分类标签，整数。**0** 表示文字方向是顺时针 0°或90°，**1** 表示 180°或270° 。
+  - `cls_score` ：方向分类置信度，0~1的浮点数。越接近**1**表示方向分类越可信。
 - 例：
   ```
     {'code':100,'data':[{'box':[[13,5],[161,5],[161,27],[13,27]],'score':0.9996442794799805,'text':'飞舞的因果交流'}]}
@@ -189,6 +262,11 @@ ocr = GetOcrApi(enginePath, argument)
 - data：`Image decode failed. Path: "图片路径".`
 - 注意，引擎不以文件后缀来区分各种图片，而是对存在的路径，均读入字节尝试解码。若传入的文件路径不是图片，或图片已损坏，则会报这个错。
 - 反之，将正常图片的后缀改为别的（如`.png`改成`.jpg或.exe`），也可以被正常识别。
+
+<details>
+<summary>
+<strong>剪贴板相关接口已弃用，不建议使用</strong>
+</summary>
 
 ##### `210` 剪贴板打开失败
 
@@ -229,6 +307,8 @@ ocr = GetOcrApi(enginePath, argument)
 - data：`Clipboard number of image channels is not valid. Number: 通道数`
 - 引擎只允许读入通道为1（黑白）、3（RGB）、4（RGBA）的图片。位图通道数不是1、3或4，会报这个错。
 
+</details>
+
 ##### `300` base64字符串解析为string失败
 
 - data：`Base64 decode failed.`
@@ -264,9 +344,22 @@ ocr = GetOcrApi(enginePath, argument)
 👆当你需要修改或开发新API时欢迎参考。
 
 
-### [项目构建指南](cpp)
+### 项目构建指南
 
-👆当你需要修改项目源码时欢迎参考。
+#### 稳定版，基于 PP-OCR v2.6
+
+- [Windows 平台构建步骤](https://github.com/hiroi-sora/PaddleOCR-json/blob/release/1.4.1/cpp/README.md)
+- [Linux 平台构建步骤](https://github.com/hiroi-sora/PaddleOCR-json/blob/release/1.4.1/cpp/README-linux.md)
+- [Docker 部署](https://github.com/hiroi-sora/PaddleOCR-json/blob/release/1.4.1/cpp/README-docker.md)
+
+#### 开发版，基于 PP-OCR v2.8
+
+> 注：此版本基于 Paddle Inference 3.0.0 推理后端，使用带 AVX512 指令集的高端 CPU 时性能更好。普通家用 CPU 则有性能劣化，建议使用上面的稳定版。
+
+- [Windows 平台构建步骤](cpp/README.md)
+- [Linux 平台构建步骤](cpp/README-linux.md)
+- [Docker 部署](cpp/README-docker.md)
+- [移植指南](cpp/docs/移植指南.md) （需要移植项目到不同平台时可供参考）
 
 ### 感谢
 
@@ -285,10 +378,40 @@ ocr = GetOcrApi(enginePath, argument)
 
 版本号链接可前往对应备份分支。
 
+#### [v1.4.1](https://github.com/hiroi-sora/PaddleOCR-json/tree/release/1.4.1) `2024.8.28`
+
+- 推理后端 Paddle Inference 由于 `3.0.0` 的不稳定性，沿用 `2.3.2` 旧版推理库。
+- 修复：语言库 `繁体中文` 配置文件不正确的问题。
+- 重新编译 Linux 发行版：
+  - `glibc` 依赖库向下调整至 `2.31` 版本，兼容 debian11、ubuntu20.04 等旧系统。
+
+#### 测试： v1.4.1 dev 1 `2024.7.31`
+
+- 更新推理后端至 Paddle Inference `3.0.0 beta-1` 。
+- 大幅优化内存占用：峰值由 2.5GB 降至约 1.5GB 。
+- 增加命令行参数：内存自动清理界限 `--cpu_mem` 。见 [文档](cpp/README.md#关于内存占用) 。
+- 小幅优化初始化耗时。
+- 支持 `PP-OCR V4` 系列模型库，及PPOCR算法挑战赛 [冠军方案模型库](https://github.com/PaddlePaddle/PaddleOCR/blob/main/doc/doc_ch/algorithm_rec_svtrv2.md) 。
+- 由于后端依赖库的更新，在 **非AVX512** 的CPU上，OCR速度可能有 **小幅下降** 。
+- 由于语言库`cyrillic`（斯拉夫字母/俄语）的准确度较低、使用频率较低，发行包中不再包含此语言库。有需要的用户可 [自行下载](https://paddleocr.bj.bcebos.com/PP-OCRv3/multilingual/cyrillic_PP-OCRv3_rec_infer.tar) 。
+- Python API： 修复了布尔类型启动参数设为 `False` 不生效的问题。
+
+#### [v1.4.0](https://github.com/hiroi-sora/PaddleOCR-json/tree/release/1.4.0) `2024.7.22` 
+
+#### v1.4.0 beta 2 `2024.7.9` 
+- 返回值新增：文字方向分类相关参数。
+
+#### v1.4.0 beta `2024.7.5` 
+- 兼容 Linux 。
+- 调整：默认禁用剪贴板识图功能，需自行编译开启。
+
+#### v1.3.1 `2023.10.10` 
+- 兼容 Win7 x64 。
+
 #### [v1.3.0](https://github.com/hiroi-sora/PaddleOCR-json/tree/release/1.3.0) `2023.6.19` 
 - 修复了一些BUG。
 
-#### v1.3.0 Alpha `2023.5.26` 
+#### v1.3.0 alpha `2023.5.26` 
 - 重构代码，条理更清晰，易于移植。
 - 新功能：Base64传图片。
 - 新功能：套接字服务器模式。
@@ -305,7 +428,7 @@ ocr = GetOcrApi(enginePath, argument)
 - 默认开启mkldnn加速。
 - 新功能：json输入及热更新。
 
-#### v1.2.0 Beta `2022.8.26` 
+#### v1.2.0 beta `2022.8.26` 
 - 重构整个工程，核心代码同步PaddleOCR 2.6。
 - 对v3版识别库的支持更好。
 - 新功能：启动参数。
